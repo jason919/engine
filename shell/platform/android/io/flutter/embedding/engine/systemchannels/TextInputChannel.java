@@ -276,6 +276,12 @@ public class TextInputChannel {
         "TextInputClient.performAction", Arrays.asList(inputClientId, "TextInputAction.previous"));
   }
 
+  public void commitContent(int inputClientId, String contentUrl) {
+    Log.v(TAG, "Sending 'commitContent' message.");
+    channel.invokeMethod(
+        "TextInputClient.performAction", Arrays.asList(inputClientId, "TextInputAction.commitContent", contentUrl));
+  }
+
   /** Instructs Flutter to execute an "unspecified" action. */
   public void unspecifiedAction(int inputClientId) {
     Log.v(TAG, "Sending 'unspecified' message.");

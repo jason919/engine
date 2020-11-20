@@ -26,6 +26,8 @@ import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
+import android.view.inputmethod.InputContentInfo;
+import android.os.Bundle;
 import io.flutter.Log;
 import io.flutter.embedding.android.AndroidKeyProcessor;
 import io.flutter.embedding.engine.FlutterJNI;
@@ -491,6 +493,14 @@ class InputConnectionAdaptor extends BaseInputConnection
         break;
     }
     return true;
+  }
+
+  @Override
+  public boolean commitContent(InputContentInfo inputContentInfo, int flags, Bundle opts) {
+      Log.d("HackFlutterEngine", "commitContent: " + inputContentInfo.getLinkUri().toString());
+
+      textInputChannel.commitContent(mClient, inputContentInfo.getLinkUri().toString());
+      return true;
   }
 
   // -------- Start: ListenableEditingState watcher implementation -------

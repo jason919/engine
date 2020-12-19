@@ -221,19 +221,17 @@ FLUTTER_ASSERT_ARC
         updateCount++;
       });
 
-  [inputView.text setString:@"BEFORE"];
-  XCTAssertEqual(updateCount, 0);
+- (void)testSelectionChangeDoesNotTriggerUpdateEditingClient {
+  FlutterTextInputView* inputView = [[FlutterTextInputView alloc] init];
+  inputView.textInputDelegate = engine;
 
   inputView.markedTextRange = nil;
   inputView.selectedTextRange = nil;
   XCTAssertEqual(updateCount, 1);
 
-  // Text changes don't trigger an update.
-  XCTAssertEqual(updateCount, 1);
-  [inputView setTextInputState:@{@"text" : @"AFTER"}];
-  XCTAssertEqual(updateCount, 1);
-  [inputView setTextInputState:@{@"text" : @"AFTER"}];
-  XCTAssertEqual(updateCount, 1);
+  BOOL shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"SELECTION", @"selectionBase" : @0, @"selectionExtent" : @3}];
+  XCTAssertFalse(shouldUpdate);
 
   // Selection changes don't trigger an update.
   [inputView
@@ -241,7 +239,11 @@ FLUTTER_ASSERT_ARC
   XCTAssertEqual(updateCount, 1);
   [inputView
       setTextInputState:@{@"text" : @"SELECTION", @"selectionBase" : @1, @"selectionExtent" : @3}];
-  XCTAssertEqual(updateCount, 1);
+  XCTAssertFalse(shouldUpdate);
+
+  shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"SELECTION", @"selectionBase" : @1, @"selectionExtent" : @2}];
+  XCTAssertFalse(shouldUpdate);
 
   // Composing region changes don't trigger an update.
   [inputView
@@ -250,6 +252,32 @@ FLUTTER_ASSERT_ARC
   [inputView
       setTextInputState:@{@"text" : @"COMPOSING", @"composingBase" : @1, @"composingExtent" : @3}];
   XCTAssertEqual(updateCount, 1);
+}
+
+- (void)testComposingChangeDoesNotTriggerUpdateEditingClient {
+  FlutterTextInputView* inputView = [[FlutterTextInputView alloc] init];
+  inputView.textInputDelegate = engine;
+
+  // Reset to test marked text.
+  [inputView.text setString:@"COMPOSING"];
+  inputView.markedTextRange = nil;
+  inputView.selectedTextRange = nil;
+
+  BOOL shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"COMPOSING", @"composingBase" : @0, @"composingExtent" : @3}];
+  XCTAssertFalse(shouldUpdate);
+
+  shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"COMPOSING", @"composingBase" : @1, @"composingExtent" : @3}];
+  XCTAssertFalse(shouldUpdate);
+
+  shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"COMPOSING", @"composingBase" : @1, @"composingExtent" : @2}];
+  XCTAssertFalse(shouldUpdate);
+
+  shouldUpdate = [inputView
+      setTextInputState:@{@"text" : @"COMPOSING", @"composingBase" : @1, @"composingExtent" : @2}];
+  XCTAssertFalse(shouldUpdate);
 }
 
 - (void)testUITextInputAvoidUnnecessaryUndateEditingClientCalls {

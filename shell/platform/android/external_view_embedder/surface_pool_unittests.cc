@@ -213,18 +213,20 @@ TEST(SurfacePool, DestroyLayers__frameSizeChanged) {
   auto jni_mock = std::make_shared<JNIMock>();
 
   auto gr_context = GrDirectContext::MakeMock(nullptr);
-  auto android_context = AndroidContext(AndroidRenderingAPI::kSoftware);
+  auto android_context =
+      std::make_shared<AndroidContext>(AndroidRenderingAPI::kSoftware);
 
   auto window = fml::MakeRefCounted<AndroidNativeWindow>(nullptr);
 
   auto surface_factory =
-      std::make_shared<TestAndroidSurfaceFactory>([gr_context, window]() {
+      [gr_context, window](std::shared_ptr<AndroidContext> android_context,
+                           std::shared_ptr<PlatformViewAndroidJNI> jni_facade) {
         auto android_surface_mock = std::make_unique<AndroidSurfaceMock>();
         EXPECT_CALL(*android_surface_mock, CreateGPUSurface(gr_context.get()));
         EXPECT_CALL(*android_surface_mock, SetNativeWindow(window));
         EXPECT_CALL(*android_surface_mock, IsValid()).WillOnce(Return(true));
         return android_surface_mock;
-      });
+      };
   pool->SetFrameSize(SkISize::Make(10, 10));
   EXPECT_CALL(*jni_mock, FlutterViewDestroyOverlaySurfaces()).Times(0);
   EXPECT_CALL(*jni_mock, FlutterViewCreateOverlaySurface())

@@ -81,6 +81,15 @@ public class AndroidKeyProcessor {
   }
 
   /**
+   * Called when a key up event is received by the {@link FlutterView}.
+   *
+   * <p>The AndroidKeyProcessor instance should not be used after calling this.
+   */
+  public void destroy() {
+    keyEventChannel.setEventResponseHandler(null);
+  }
+
+  /**
    * Called when a key event is received by the {@link FlutterView} or the {@link
    * InputConnectionAdaptor}.
    *

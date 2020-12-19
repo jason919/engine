@@ -1109,8 +1109,8 @@ public class TextInputPluginTest {
 
     verify(flutterRenderer).setViewportMetrics(viewportMetricsCaptor.capture());
     // Values should be of deferredInsets, not imeInsets2
-    assertEquals(0, viewportMetricsCaptor.getValue().viewPaddingBottom);
-    assertEquals(10, viewportMetricsCaptor.getValue().viewPaddingTop);
+    assertEquals(0, viewportMetricsCaptor.getValue().paddingBottom);
+    assertEquals(10, viewportMetricsCaptor.getValue().paddingTop);
     assertEquals(200, viewportMetricsCaptor.getValue().viewInsetBottom);
     assertEquals(0, viewportMetricsCaptor.getValue().viewInsetTop);
   }

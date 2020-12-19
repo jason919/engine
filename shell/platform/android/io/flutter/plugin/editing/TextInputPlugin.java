@@ -226,10 +226,6 @@ public class TextInputPlugin implements ListenableEditingState.EditingStateWatch
   public void destroy() {
     platformViewsController.detachTextInputPlugin();
     textInputChannel.setTextInputMethodHandler(null);
-    notifyViewExited();
-    if (mEditable != null) {
-      mEditable.removeEditingStateListener(this);
-    }
     if (imeSyncCallback != null) {
       imeSyncCallback.remove();
     }

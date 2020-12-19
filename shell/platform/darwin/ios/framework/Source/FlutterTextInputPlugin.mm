@@ -537,7 +537,10 @@ static FlutterAutofillType autofillTypeOf(NSDictionary* configuration) {
   _textInputClient = client;
 }
 
-- (void)setTextInputState:(NSDictionary*)state {
+// Return true if the new input state needs to be synced back to the framework.
+// TODO(LongCatIsLooong): setTextInputState should never call updateEditingState. Sending the
+// editing value back may overwrite the framework's updated editing value.
+- (BOOL)setTextInputState:(NSDictionary*)state {
   NSString* newText = state[@"text"];
   BOOL textChanged = ![self.text isEqualToString:newText];
   if (textChanged) {
@@ -572,6 +575,9 @@ static FlutterAutofillType autofillTypeOf(NSDictionary* configuration) {
   if (textChanged) {
     [self.inputDelegate textDidChange:self];
   }
+
+  // For consistency with Android behavior, send an update to the framework if the text changed.
+  return textChanged;
 }
 
 // Extracts the selection information from the editing state dictionary.

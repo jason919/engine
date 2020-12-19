@@ -999,15 +999,7 @@ TEST_F(ShellTest,
 }
 
 // TODO(https://github.com/flutter/flutter/issues/59816): Enable on fuchsia.
-// TODO(https://github.com/flutter/flutter/issues/66056): Deflake on all other
-// platforms
-TEST_F(ShellTest,
-#if defined(OS_FUCHSIA)
-       DISABLED_SkipAndSubmitFrame
-#else
-       SkipAndSubmitFrame
-#endif
-) {
+TEST_F(ShellTest, DISABLED_SkipAndSubmitFrame) {
   auto settings = CreateSettingsForFixture();
   fml::AutoResetWaitableEvent end_frame_latch;
   std::shared_ptr<ShellTestExternalViewEmbedder> external_view_embedder;
@@ -1015,11 +1007,8 @@ TEST_F(ShellTest,
   auto end_frame_callback =
       [&](bool should_resubmit_frame,
           fml::RefPtr<fml::RasterThreadMerger> raster_thread_merger) {
-        if (should_resubmit_frame && !raster_thread_merger->IsMerged()) {
-          raster_thread_merger->MergeWithLease(10);
-          external_view_embedder->UpdatePostPrerollResult(
-              PostPrerollResult::kSuccess);
-        }
+        external_view_embedder->UpdatePostPrerollResult(
+            PostPrerollResult::kSuccess);
         end_frame_latch.Signal();
       };
   external_view_embedder = std::make_shared<ShellTestExternalViewEmbedder>(
@@ -1042,12 +1031,10 @@ TEST_F(ShellTest,
   end_frame_latch.Wait();
   ASSERT_EQ(0, external_view_embedder->GetSubmittedFrameCount());
 
-  // Let the resubmitted frame to run and `GetSubmittedFrameCount` should be
-  // called.
+  PumpOneFrame(shell.get());
   end_frame_latch.Wait();
   ASSERT_EQ(1, external_view_embedder->GetSubmittedFrameCount());
 
-  PlatformViewNotifyDestroyed(shell.get());
   DestroyShell(std::move(shell));
 }
 
